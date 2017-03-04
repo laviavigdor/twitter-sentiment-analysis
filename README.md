@@ -2,7 +2,8 @@
 
 ## Overview
 This package will perform sentiment analysis on tweets or similar short texts.
-Pre-trained word embeddings from GloVe are used as a frozen input to Keras, aftwerwhich a CNN learns and predicts on the classification.
+Pre-trained word embeddings from GloVe are used as a frozen 
+input to Keras, afterwhich a CNN learns and predicts on the classification.
 
 ### Resulting accuracy: *~ 79%*
 
