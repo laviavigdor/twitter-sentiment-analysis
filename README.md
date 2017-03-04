@@ -17,7 +17,7 @@ input to Keras, afterwhich a CNN learns and predicts on the classification.
 
         wget http://thinknook.com/wp-content/uploads/2012/09/Sentiment-Analysis-Dataset.zip
 
-3. Run 
+3. Run *[Optional since model.h5 and weights.h5 have been provided]* 
 
         python train.py
 
