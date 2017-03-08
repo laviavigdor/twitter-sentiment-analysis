@@ -23,13 +23,15 @@ GLOVE_DIR = BASE_DIR + '/glove/'
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NB_WORDS = 20000
 
+# Consider changing the 200 to 25
 EMBEDDING_DIM = 200
 GLOVE_FILE = 'glove.twitter.27B.200d.txt'
 
 TRAIN_DATA_FILE = "Sentiment Analysis Dataset.csv"
 
-VALIDATION_SPLIT = 0.1
+VALIDATION_SPLIT = 0.2
 
+# consider outsourcing the preprocessing (tokenize + embeding) into a dictionary file)
 def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = '1'  # str(random.randint(0, 15))
     labels_index = { 'Negative': 0, 'Positive': 1}
@@ -39,7 +41,7 @@ def main():
     model = make_model(labels_index, word_index)
     train(model, x_train, x_val, y_train, y_val)
 
-    valid_predicted_out = model.predict(x=x_val, batch_size=128)
+    valid_predicted_out = model.predict(x=x_val, batch_size=256)
     evaluate(y_val, valid_predicted_out)
 
 
@@ -68,6 +70,9 @@ def evaluate(expected_out, predicted_out):
 
 def make_model(labels_index, word_index):
     embedded_sequences = make_embedding_layer(word_index)
+    # Check replacing CNN to RNN with LSTM.
+    # Check diff activations? softmax->tanh
+    # Consider adding batch normalization
     model = Sequential([
         embedded_sequences,
         Conv1D(512, 5, activation='relu'),
@@ -88,13 +93,14 @@ def make_model(labels_index, word_index):
 
 
 def make_embedding_layer(word_index):
-    embeddings_index = get_embeding_index()
+    embeddings = get_embeddings()
     nb_words = min(MAX_NB_WORDS, len(word_index))
     embedding_matrix = np.zeros((nb_words, EMBEDDING_DIM))
+
     for word, i in word_index.items():
         if i >= MAX_NB_WORDS:
             continue
-        embedding_vector = embeddings_index.get(word)
+        embedding_vector = embeddings.get(word)
         if embedding_vector is not None:
             embedding_matrix[i] = embedding_vector
 
@@ -138,16 +144,15 @@ def load_data_set():
             Y.append(is_positive)
     return X,Y
 
-def get_embeding_index():
-    embeddings_index = {}
+def get_embeddings():
+    embeddings = {}
     with open(os.path.join(GLOVE_DIR, GLOVE_FILE), 'r') as f:
         for line in f:
             values = line.split()
             word = values[0]
             coefs = np.asarray(values[1:], dtype='float32')
-            embeddings_index[word] = coefs
-
-    return embeddings_index
+            embeddings[word] = coefs
+    return embeddings
 
 
 if __name__ == "__main__":
